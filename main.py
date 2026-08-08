@@ -12,7 +12,8 @@ Session flow:
 External calls (Claude + Breeth) are both wrapped in try/except so the route
 never crashes mid-interview; on failure we fall back to a safe default.
 """
-
+from dotenv import load_dotenv
+load_dotenv()
 import os
 import json
 import logging
@@ -27,6 +28,16 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("interview-agent")
 
 app = FastAPI()
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+# Mount your frontend directory
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+async def read_index():
+    return FileResponse("static/index.html")
+
 
 # ---------------------------------------------------------------------------
 # Config

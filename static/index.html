@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Interview Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* ---- Design tokens ---- */
+    --ink-950: #0B1014;
+    --ink-900: #121A20;
+    --ink-800: #1B242C;
+    --ink-750: #212C35;
+    --line: #263039;
+    --line-soft: #1E2830;
+    --text-hi: #E9EEF2;
+    --text-lo: #8CA0AC;
+    --text-faint: #566773;
+    --signal: #F2A93C;
+    --signal-dim: rgba(242, 169, 60, 0.14);
+    --signal-line: rgba(242, 169, 60, 0.38);
+    --teal: #52D6C4;
+    --teal-dim: rgba(82, 214, 196, 0.14);
+    --danger: #E2685A;
+
+    --font-display: 'Space Grotesk', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: var(--ink-950);
+    color: var(--text-hi);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    background-image:
+      radial-gradient(circle at 15% -10%, rgba(242,169,60,0.05), transparent 45%),
+      radial-gradient(circle at 85% 0%, rgba(82,214,196,0.04), transparent 40%);
+  }
+
+  ::selection { background: var(--signal-dim); color: var(--text-hi); }
+
+  button, input {
+    font-family: inherit;
+  }
+
+  /* ---------------- Header ---------------- */
+
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: linear-gradient(var(--ink-900), var(--ink-900)) padding-box,
+                linear-gradient(90deg, var(--signal), var(--teal)) border-box;
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 1px 0 0 rgba(242,169,60,0.08);
+  }
+
+  .header-inner {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .brand-mark {
+    width: 38px;
+    height: 38px;
+    flex: none;
+    border-radius: 10px;
+    background: linear-gradient(155deg, var(--ink-800), var(--ink-750));
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .rec-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-faint);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+  .rec-dot.live {
+    background: var(--signal);
+    box-shadow: 0 0 0 0 rgba(242,169,60,0.5);
+    animation: pulse-dot 1.6s ease-out infinite;
+  }
+  .rec-dot.done {
+    background: var(--teal);
+    box-shadow: 0 0 8px rgba(82,214,196,0.6);
+  }
+
+  @keyframes pulse-dot {
+    0%   { box-shadow: 0 0 0 0 rgba(242,169,60,0.45); }
+    70%  { box-shadow: 0 0 0 8px rgba(242,169,60,0); }
+    100% { box-shadow: 0 0 0 0 rgba(242,169,60,0); }
+  }
+
+  .brand-text { min-width: 0; }
+
+  .brand-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: -0.01em;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .brand-sub {
+    font-size: 12px;
+    color: var(--text-lo);
+    margin: 2px 0 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.01em;
+    color: var(--text-lo);
+    background: var(--ink-800);
+    border: 1px solid var(--line);
+    padding: 5px 10px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .chip.status-live { color: var(--signal); border-color: var(--signal-line); background: var(--signal-dim); }
+  .chip.status-done { color: var(--teal); border-color: rgba(82,214,196,0.35); background: var(--teal-dim); }
+
+  /* ---------------- Chat area ---------------- */
+
+  .chat-wrap {
+    flex: 1;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+
+  .chat-inner {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 28px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 100%;
+  }
+
+  .msg-row {
+    display: flex;
+    gap: 10px;
+    max-width: 100%;
+    animation: rise 0.25s ease both;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg-row.user { justify-content: flex-end; }
+  .msg-row.assistant { justify-content: flex-start; }
+  .msg-row.system { justify-content: center; }
+
+  .avatar {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    background: var(--ink-800);
+    border: 1px solid var(--line);
+    color: var(--text-lo);
+    margin-top: 2px;
+  }
+
+  .msg-row.assistant .avatar { color: var(--signal); border-color: var(--signal-line); }
+
+  .bubble {
+    max-width: 68%;
+    padding: 11px 14px;
+    border-radius: 14px;
+    font-size: 14.5px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .msg-row.assistant .bubble {
+    background: var(--ink-800);
+    border: 1px solid var(--line);
+    border-top-left-radius: 4px;
+    color: var(--text-hi);
+  }
+
+  .msg-row.user .bubble {
+    background: var(--signal-dim);
+    border: 1px solid var(--signal-line);
+    border-top-right-radius: 4px;
+    color: var(--text-hi);
+  }
+
+  .msg-row.system .bubble {
+    background: transparent;
+    border: 1px dashed var(--line);
+    color: var(--text-faint);
+    font-size: 12.5px;
+    font-family: var(--font-mono);
+    border-radius: 999px;
+    padding: 6px 14px;
+  }
+
+  /* typing indicator */
+  .typing-dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 2px;
+  }
+  .typing-dots span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--text-lo);
+    animation: bounce 1.1s infinite ease-in-out;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-4px); opacity: 1; }
+  }
+
+  /* ---------------- Feedback report ---------------- */
+
+  .report-card {
+    max-width: 100%;
+    background: linear-gradient(180deg, var(--ink-800), var(--ink-900));
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .report-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--signal), var(--teal));
+  }
+
+  .report-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin: 0 0 8px;
+  }
+
+  .report-summary {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-hi);
+    margin: 0 0 18px;
+  }
+
+  .report-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  @media (max-width: 560px) {
+    .report-grid { grid-template-columns: 1fr; }
+  }
+
+  .report-section h4 {
+    font-family: var(--font-display);
+    font-size: 12.5px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    margin: 0 0 8px;
+    color: var(--text-lo);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .dot-marker { width: 6px; height: 6px; border-radius: 50%; }
+  .dot-strength { background: var(--teal); }
+  .dot-gap { background: var(--signal); }
+  .dot-next { background: #8AA6FF; }
+
+  .report-section ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .report-section li {
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--text-hi);
+    background: var(--ink-900);
+    border: 1px solid var(--line-soft);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+
+  .report-section.next { grid-column: 1 / -1; }
+
+  /* ---------------- Composer ---------------- */
+
+  .composer {
+    border-top: 1px solid var(--line);
+    background: var(--ink-900);
+    padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+  }
+
+  .composer-inner {
+    max-width: 880px;
+    margin: 0 auto;
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+  }
+
+  .composer-field {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: var(--ink-800);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 4px 4px 4px 14px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .composer-field:focus-within {
+    border-color: var(--signal-line);
+    box-shadow: 0 0 0 3px rgba(242,169,60,0.10);
+  }
+
+  .composer-field input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-hi);
+    font-size: 14.5px;
+    padding: 10px 0;
+  }
+
+  .composer-field input::placeholder { color: var(--text-faint); }
+  .composer-field input:disabled { color: var(--text-faint); }
+
+  .send-btn {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 9px;
+    border: none;
+    background: var(--signal);
+    color: var(--ink-950);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.12s ease, opacity 0.12s ease, background 0.12s ease;
+    margin: 2px;
+  }
+  .send-btn:hover:not(:disabled) { transform: translateY(-1px); }
+  .send-btn:active:not(:disabled) { transform: translateY(0); }
+  .send-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .send-btn svg { width: 17px; height: 17px; }
+
+  button:focus-visible,
+  input:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 2px;
+  }
+
+  .composer-hint {
+    max-width: 880px;
+    margin: 8px auto 0;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-faint);
+    text-align: center;
+  }
+
+  .completed-banner {
+    max-width: 880px;
+    margin: 0 auto;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-lo);
+    padding: 4px 0 2px;
+  }
+
+  /* Scrollbar */
+  .chat-wrap::-webkit-scrollbar { width: 8px; }
+  .chat-wrap::-webkit-scrollbar-track { background: transparent; }
+  .chat-wrap::-webkit-scrollbar-thumb { background: var(--line); border-radius: 8px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rec-dot.live { animation: none; }
+    .msg-row { animation: none; }
+    .typing-dots span { animation: none; opacity: 0.7; }
+  }
+
+  @media (max-width: 640px) {
+    .bubble { max-width: 82%; }
+    .header-inner { padding: 14px 16px; }
+    .chat-inner { padding: 20px 14px 16px; }
+    .composer { padding: 12px 14px calc(12px + env(safe-area-inset-bottom)); }
+  }
+</style>
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-mark"><span class="rec-dot" id="recDot"></span></div>
+        <div class="brand-text">
+          <p class="brand-title">AI Interview Agent</p>
+          <p class="brand-sub" id="candidateSub">Loading candidate…</p>
+        </div>
+      </div>
+      <div class="header-meta">
+        <span class="chip" id="turnChip">turn 0</span>
+        <span class="chip status-live" id="statusChip">connecting…</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="chat-wrap" id="chatWrap">
+    <div class="chat-inner" id="chatInner"></div>
+  </main>
+
+  <footer class="composer" id="composer">
+    <div class="composer-inner">
+      <div class="composer-field">
+        <input
+          type="text"
+          id="messageInput"
+          placeholder="Type your answer…"
+          autocomplete="off"
+          disabled
+        />
+      </div>
+      <button class="send-btn" id="sendBtn" disabled aria-label="Send message">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+    <p class="composer-hint" id="composerHint">Press Enter to send</p>
+  </footer>
+
+<script>
+(function () {
+  "use strict";
+
+  // -----------------------------------------------------------------------
+  // Configuration — adjust to match your FastAPI deployment
+  // -----------------------------------------------------------------------
+  const API_URL = "/api/interview"; // relative path; change to absolute URL if backend is hosted separately
+
+  // Demo candidate payload matching CandidateProfile schema from technical-spec.md.
+  // Swap this out for a real candidate object (e.g. loaded from your own auth/session flow).
+  const CANDIDATE = {
+    member: {
+      id: "CAND-001",
+      name: "Sarah Johnson",
+      jobRole: "Senior Data Engineer",
+      yearsExperience: 9,
+      education: "MS Computer Science",
+      status: "COMPLETED"
+    },
+    missions: [
+      { day: 7, title: "Embeddings Explained", passed: true, attempts: 1 },
+      { day: 8, title: "Vector Databases Overview", passed: true, attempts: 1 },
+      { day: 10, title: "Retrieval & Matching Engine", passed: true, attempts: 2 },
+      { day: 12, title: "Prompt Engineering Fundamentals", passed: true, attempts: 4 },
+      { day: 16, title: "Chatbot Backend & API Integration", passed: true, attempts: 1 },
+      { day: 22, title: "Multi-Agent Orchestration", passed: true, attempts: 2 },
+      { day: 23, title: "Model Context Protocol (MCP)", passed: true, attempts: 2 },
+      { day: 28, title: "Docker & Kubernetes Deployment", passed: true, attempts: 3 },
+      { day: 29, title: "Monitoring, Logging & Observability", skipped: true },
+      { day: 31, title: "Capstone Project & Final Demo", passed: true, attempts: 1 }
+    ],
+    signals: { commitDays: 28, missionsCompleted: 30, missionsFirstTry: 20 }
+  };
+
+  const sessionId = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
+
+  // -----------------------------------------------------------------------
+  // DOM refs
+  // -----------------------------------------------------------------------
+  const chatInner   = document.getElementById("chatInner");
+  const chatWrap     = document.getElementById("chatWrap");
+  const input        = document.getElementById("messageInput");
+  const sendBtn      = document.getElementById("sendBtn");
+  const recDot       = document.getElementById("recDot");
+  const statusChip   = document.getElementById("statusChip");
+  const turnChip     = document.getElementById("turnChip");
+  const candidateSub = document.getElementById("candidateSub");
+  const composer     = document.getElementById("composer");
+  const composerHint = document.getElementById("composerHint");
+
+  let turnCount = 0;
+  let interviewDone = false;
+  let typingRow = null;
+
+  candidateSub.textContent =
+    `${CANDIDATE.member.name} · ${CANDIDATE.member.jobRole} · ${CANDIDATE.member.yearsExperience}y exp`;
+
+  // -----------------------------------------------------------------------
+  // Rendering helpers
+  // -----------------------------------------------------------------------
+
+  function scrollToBottom() {
+    requestAnimationFrame(() => { chatWrap.scrollTop = chatWrap.scrollHeight; });
+  }
+
+  function addSystemNote(text) {
+    const row = document.createElement("div");
+    row.className = "msg-row system";
+    row.innerHTML = `<div class="bubble">${escapeHtml(text)}</div>`;
+    chatInner.appendChild(row);
+    scrollToBottom();
+    return row;
+  }
+
+  function addMessage(role, text) {
+    const row = document.createElement("div");
+    row.className = `msg-row ${role}`;
+
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+    avatar.textContent = role === "user" ? "YOU" : "AI";
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.textContent = text;
+
+    if (role === "user") {
+      row.appendChild(bubble);
+      row.appendChild(avatar);
+    } else {
+      row.appendChild(avatar);
+      row.appendChild(bubble);
+    }
+
+    chatInner.appendChild(row);
+    scrollToBottom();
+    return row;
+  }
+
+  function showTyping() {
+    typingRow = document.createElement("div");
+    typingRow.className = "msg-row assistant";
+    typingRow.innerHTML = `
+      <div class="avatar">AI</div>
+      <div class="bubble">
+        <span class="typing-dots"><span></span><span></span><span></span></span>
+      </div>`;
+    chatInner.appendChild(typingRow);
+    scrollToBottom();
+  }
+
+  function hideTyping() {
+    if (typingRow) {
+      typingRow.remove();
+      typingRow = null;
+    }
+  }
+
+  function renderFeedbackReport(feedback) {
+    const row = document.createElement("div");
+    row.className = "msg-row assistant";
+    row.style.maxWidth = "100%";
+
+    const card = document.createElement("div");
+    card.className = "report-card";
+    card.style.flex = "1";
+
+    const list = (items) =>
+      (items || []).map(i => `<li>${escapeHtml(i)}</li>`).join("");
+
+    card.innerHTML = `
+      <p class="report-eyebrow">Interview complete · Feedback report</p>
+      <p class="report-summary">${escapeHtml(feedback.summary || "")}</p>
+      <div class="report-grid">
+        <div class="report-section">
+          <h4><span class="dot-marker dot-strength"></span>Strengths</h4>
+          <ul>${list(feedback.strengths)}</ul>
+        </div>
+        <div class="report-section">
+          <h4><span class="dot-marker dot-gap"></span>Gaps</h4>
+          <ul>${list(feedback.gaps)}</ul>
+        </div>
+        <div class="report-section next">
+          <h4><span class="dot-marker dot-next"></span>Next steps</h4>
+          <ul>${list(feedback.next)}</ul>
+        </div>
+      </div>
+    `;
+
+    row.appendChild(card);
+    chatInner.appendChild(row);
+    scrollToBottom();
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function setStatus(state) {
+    if (state === "connecting") {
+      statusChip.textContent = "connecting…";
+      statusChip.className = "chip status-live";
+      recDot.className = "rec-dot";
+    } else if (state === "live") {
+      statusChip.textContent = "in progress";
+      statusChip.className = "chip status-live";
+      recDot.className = "rec-dot live";
+    } else if (state === "done") {
+      statusChip.textContent = "complete";
+      statusChip.className = "chip status-done";
+      recDot.className = "rec-dot done";
+    } else if (state === "error") {
+      statusChip.textContent = "connection error";
+      statusChip.className = "chip";
+      statusChip.style.color = "var(--danger)";
+      recDot.className = "rec-dot";
+    }
+  }
+
+  function setComposerEnabled(enabled) {
+    input.disabled = !enabled;
+    sendBtn.disabled = !enabled;
+    if (enabled) input.focus();
+  }
+
+  function lockComposerForCompletion() {
+    setComposerEnabled(false);
+    input.placeholder = "Interview complete";
+    composerHint.textContent = "This interview session has ended";
+    composer.style.opacity = "0.7";
+  }
+
+  // -----------------------------------------------------------------------
+  // Networking
+  // -----------------------------------------------------------------------
+
+  async function postToBackend(body) {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      throw new Error(`Backend responded ${res.status}: ${detail || res.statusText}`);
+    }
+    return res.json();
+  }
+
+  async function startInterview() {
+    setStatus("connecting");
+    try {
+      const data = await postToBackend({ sessionId, candidate: CANDIDATE });
+      addMessage("assistant", data.reply);
+      setStatus("live");
+      setComposerEnabled(true);
+    } catch (err) {
+      console.error(err);
+      addSystemNote("Couldn't reach the interview backend. Check that the API is running and reachable at " + API_URL + ".");
+      setStatus("error");
+    }
+  }
+
+  async function sendMessage() {
+    const text = input.value.trim();
+    if (!text || interviewDone) return;
+
+    addMessage("user", text);
+    input.value = "";
+    setComposerEnabled(false);
+    showTyping();
+
+    try {
+      const data = await postToBackend({ sessionId, message: text });
+      hideTyping();
+
+      turnCount += 1;
+      turnChip.textContent = `turn ${turnCount}`;
+
+      if (data.done) {
+        interviewDone = true;
+        addMessage("assistant", data.reply);
+        if (data.feedback) renderFeedbackReport(data.feedback);
+        setStatus("done");
+        lockComposerForCompletion();
+      } else {
+        addMessage("assistant", data.reply);
+        setComposerEnabled(true);
+      }
+    } catch (err) {
+      console.error(err);
+      hideTyping();
+      addSystemNote("Message failed to send — network or server error. Try again.");
+      setComposerEnabled(true);
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Events
+  // -----------------------------------------------------------------------
+
+  sendBtn.addEventListener("click", sendMessage);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  startInterview();
+})();
+</script>
+
+</body>
+</html>
