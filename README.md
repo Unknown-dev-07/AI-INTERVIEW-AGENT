@@ -9,7 +9,7 @@ A FastAPI-based backend and modern web UI for an automated AI interview agent po
 
 ## Tech Stack
 - **Backend:** Python, FastAPI, Uvicorn, Groq API
-- **Frontend:** HTML5, CSS3, JavaScript
+- **Frontend:** HTML5
 
 ## How to Run Locally
 1. Clone the repository:
