@@ -7,510 +7,126 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+          body: ['Inter', 'system-ui', 'sans-serif'],
+          mono: ['"JetBrains Mono"', '"SF Mono"', 'monospace'],
+        },
+      },
+    },
+  };
+</script>
 <style>
-  :root {
-    /* ---- Design tokens ---- */
-    --ink-950: #0B1014;
-    --ink-900: #121A20;
-    --ink-800: #1B242C;
-    --ink-750: #212C35;
-    --line: #263039;
-    --line-soft: #1E2830;
-    --text-hi: #E9EEF2;
-    --text-lo: #8CA0AC;
-    --text-faint: #566773;
-    --signal: #F2A93C;
-    --signal-dim: rgba(242, 169, 60, 0.14);
-    --signal-line: rgba(242, 169, 60, 0.38);
-    --teal: #52D6C4;
-    --teal-dim: rgba(82, 214, 196, 0.14);
-    --danger: #E2685A;
+  html, body { height: 100%; }
+  body { -webkit-font-smoothing: antialiased; }
 
-    --font-display: 'Space Grotesk', system-ui, sans-serif;
-    --font-body: 'Inter', system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
-  }
+  ::selection { background: rgba(99, 102, 241, 0.35); color: #fff; }
 
-  * { box-sizing: border-box; }
-
-  html, body {
-    height: 100%;
-    margin: 0;
-    background: var(--ink-950);
-    color: var(--text-hi);
-    font-family: var(--font-body);
-    -webkit-font-smoothing: antialiased;
-  }
-
-  body {
-    display: flex;
-    flex-direction: column;
-    background-image:
-      radial-gradient(circle at 15% -10%, rgba(242,169,60,0.05), transparent 45%),
-      radial-gradient(circle at 85% 0%, rgba(82,214,196,0.04), transparent 40%);
-  }
-
-  ::selection { background: var(--signal-dim); color: var(--text-hi); }
-
-  button, input {
-    font-family: inherit;
-  }
-
-  /* ---------------- Header ---------------- */
-
-  .app-header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: linear-gradient(var(--ink-900), var(--ink-900)) padding-box,
-                linear-gradient(90deg, var(--signal), var(--teal)) border-box;
-    border-bottom: 1px solid var(--line);
-    box-shadow: 0 1px 0 0 rgba(242,169,60,0.08);
-  }
-
-  .header-inner {
-    max-width: 880px;
-    margin: 0 auto;
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-width: 0;
-  }
-
-  .brand-mark {
-    width: 38px;
-    height: 38px;
-    flex: none;
-    border-radius: 10px;
-    background: linear-gradient(155deg, var(--ink-800), var(--ink-750));
-    border: 1px solid var(--line);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
-
-  .rec-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--text-faint);
-    transition: background 0.3s ease, box-shadow 0.3s ease;
-  }
-  .rec-dot.live {
-    background: var(--signal);
-    box-shadow: 0 0 0 0 rgba(242,169,60,0.5);
-    animation: pulse-dot 1.6s ease-out infinite;
-  }
-  .rec-dot.done {
-    background: var(--teal);
-    box-shadow: 0 0 8px rgba(82,214,196,0.6);
-  }
-
-  @keyframes pulse-dot {
-    0%   { box-shadow: 0 0 0 0 rgba(242,169,60,0.45); }
-    70%  { box-shadow: 0 0 0 8px rgba(242,169,60,0); }
-    100% { box-shadow: 0 0 0 0 rgba(242,169,60,0); }
-  }
-
-  .brand-text { min-width: 0; }
-
-  .brand-title {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 16px;
-    letter-spacing: -0.01em;
-    margin: 0;
-    white-space: nowrap;
-  }
-
-  .brand-sub {
-    font-size: 12px;
-    color: var(--text-lo);
-    margin: 2px 0 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .header-meta {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .chip {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.01em;
-    color: var(--text-lo);
-    background: var(--ink-800);
-    border: 1px solid var(--line);
-    padding: 5px 10px;
-    border-radius: 999px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-  }
-
-  .chip.status-live { color: var(--signal); border-color: var(--signal-line); background: var(--signal-dim); }
-  .chip.status-done { color: var(--teal); border-color: rgba(82,214,196,0.35); background: var(--teal-dim); }
-
-  /* ---------------- Chat area ---------------- */
-
-  .chat-wrap {
-    flex: 1;
-    overflow-y: auto;
-    scroll-behavior: smooth;
-  }
-
-  .chat-inner {
-    max-width: 880px;
-    margin: 0 auto;
-    padding: 28px 20px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    min-height: 100%;
-  }
-
-  .msg-row {
-    display: flex;
-    gap: 10px;
-    max-width: 100%;
-    animation: rise 0.25s ease both;
-  }
-
+  /* message entrance */
+  .msg-row { animation: rise 0.25s ease both; }
   @keyframes rise {
     from { opacity: 0; transform: translateY(6px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  .msg-row.user { justify-content: flex-end; }
-  .msg-row.assistant { justify-content: flex-start; }
-  .msg-row.system { justify-content: center; }
-
-  .avatar {
-    flex: none;
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 500;
-    background: var(--ink-800);
-    border: 1px solid var(--line);
-    color: var(--text-lo);
-    margin-top: 2px;
-  }
-
-  .msg-row.assistant .avatar { color: var(--signal); border-color: var(--signal-line); }
-
-  .bubble {
-    max-width: 68%;
-    padding: 11px 14px;
-    border-radius: 14px;
-    font-size: 14.5px;
-    line-height: 1.55;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
-
-  .msg-row.assistant .bubble {
-    background: var(--ink-800);
-    border: 1px solid var(--line);
-    border-top-left-radius: 4px;
-    color: var(--text-hi);
-  }
-
-  .msg-row.user .bubble {
-    background: var(--signal-dim);
-    border: 1px solid var(--signal-line);
-    border-top-right-radius: 4px;
-    color: var(--text-hi);
-  }
-
-  .msg-row.system .bubble {
-    background: transparent;
-    border: 1px dashed var(--line);
-    color: var(--text-faint);
-    font-size: 12.5px;
-    font-family: var(--font-mono);
-    border-radius: 999px;
-    padding: 6px 14px;
-  }
-
-  /* typing indicator */
-  .typing-dots {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 2px;
-  }
-  .typing-dots span {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--text-lo);
-    animation: bounce 1.1s infinite ease-in-out;
-  }
-  .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
-  .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
-
-  @keyframes bounce {
+  /* typing dots */
+  @keyframes bounce-dot {
     0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
     30% { transform: translateY(-4px); opacity: 1; }
   }
+  .bounce-dot { animation: bounce-dot 1.1s infinite ease-in-out; }
 
-  /* ---------------- Feedback report ---------------- */
-
-  .report-card {
-    max-width: 100%;
-    background: linear-gradient(180deg, var(--ink-800), var(--ink-900));
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 20px 22px;
-    position: relative;
-    overflow: hidden;
+  /* subtle recording pulse */
+  @keyframes pulse-dot {
+    0%   { box-shadow: 0 0 0 0 rgba(129,140,248,0.45); }
+    70%  { box-shadow: 0 0 0 8px rgba(129,140,248,0); }
+    100% { box-shadow: 0 0 0 0 rgba(129,140,248,0); }
   }
+  .rec-live { animation: pulse-dot 1.6s ease-out infinite; }
 
-  .report-card::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--signal), var(--teal));
-  }
-
-  .report-eyebrow {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--teal);
-    margin: 0 0 8px;
-  }
-
-  .report-summary {
-    font-size: 15px;
-    line-height: 1.6;
-    color: var(--text-hi);
-    margin: 0 0 18px;
-  }
-
-  .report-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-  }
-
-  @media (max-width: 560px) {
-    .report-grid { grid-template-columns: 1fr; }
-  }
-
-  .report-section h4 {
-    font-family: var(--font-display);
-    font-size: 12.5px;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    margin: 0 0 8px;
-    color: var(--text-lo);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .dot-marker { width: 6px; height: 6px; border-radius: 50%; }
-  .dot-strength { background: var(--teal); }
-  .dot-gap { background: var(--signal); }
-  .dot-next { background: #8AA6FF; }
-
-  .report-section ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .report-section li {
-    font-size: 13.5px;
-    line-height: 1.5;
-    color: var(--text-hi);
-    background: var(--ink-900);
-    border: 1px solid var(--line-soft);
-    border-radius: 8px;
-    padding: 8px 10px;
-  }
-
-  .report-section.next { grid-column: 1 / -1; }
-
-  /* ---------------- Composer ---------------- */
-
-  .composer {
-    border-top: 1px solid var(--line);
-    background: var(--ink-900);
-    padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
-  }
-
-  .composer-inner {
-    max-width: 880px;
-    margin: 0 auto;
-    display: flex;
-    align-items: flex-end;
-    gap: 10px;
-  }
-
-  .composer-field {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    background: var(--ink-800);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 4px 4px 4px 14px;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  .composer-field:focus-within {
-    border-color: var(--signal-line);
-    box-shadow: 0 0 0 3px rgba(242,169,60,0.10);
-  }
-
-  .composer-field input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: var(--text-hi);
-    font-size: 14.5px;
-    padding: 10px 0;
-  }
-
-  .composer-field input::placeholder { color: var(--text-faint); }
-  .composer-field input:disabled { color: var(--text-faint); }
-
-  .send-btn {
-    flex: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 9px;
-    border: none;
-    background: var(--signal);
-    color: var(--ink-950);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: transform 0.12s ease, opacity 0.12s ease, background 0.12s ease;
-    margin: 2px;
-  }
-  .send-btn:hover:not(:disabled) { transform: translateY(-1px); }
-  .send-btn:active:not(:disabled) { transform: translateY(0); }
-  .send-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-
-  .send-btn svg { width: 17px; height: 17px; }
-
-  button:focus-visible,
-  input:focus-visible {
-    outline: 2px solid var(--signal);
-    outline-offset: 2px;
-  }
-
-  .composer-hint {
-    max-width: 880px;
-    margin: 8px auto 0;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--text-faint);
-    text-align: center;
-  }
-
-  .completed-banner {
-    max-width: 880px;
-    margin: 0 auto;
-    text-align: center;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--text-lo);
-    padding: 4px 0 2px;
-  }
-
-  /* Scrollbar */
-  .chat-wrap::-webkit-scrollbar { width: 8px; }
-  .chat-wrap::-webkit-scrollbar-track { background: transparent; }
-  .chat-wrap::-webkit-scrollbar-thumb { background: var(--line); border-radius: 8px; }
+  /* scrollbar */
+  .chat-scroll::-webkit-scrollbar { width: 8px; }
+  .chat-scroll::-webkit-scrollbar-track { background: transparent; }
+  .chat-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
 
   @media (prefers-reduced-motion: reduce) {
-    .rec-dot.live { animation: none; }
+    .rec-live { animation: none; }
     .msg-row { animation: none; }
-    .typing-dots span { animation: none; opacity: 0.7; }
-  }
-
-  @media (max-width: 640px) {
-    .bubble { max-width: 82%; }
-    .header-inner { padding: 14px 16px; }
-    .chat-inner { padding: 20px 14px 16px; }
-    .composer { padding: 12px 14px calc(12px + env(safe-area-inset-bottom)); }
+    .bounce-dot { animation: none; opacity: 0.7; }
   }
 </style>
 </head>
-<body>
+<body class="h-screen flex flex-col bg-slate-950 text-slate-100 font-body antialiased"
+      style="background-image: radial-gradient(circle at 15% -10%, rgba(99,102,241,0.06), transparent 45%), radial-gradient(circle at 85% 0%, rgba(16,185,129,0.05), transparent 40%);">
 
-  <header class="app-header">
-    <div class="header-inner">
-      <div class="brand">
-        <div class="brand-mark"><span class="rec-dot" id="recDot"></span></div>
-        <div class="brand-text">
-          <p class="brand-title">AI Interview Agent</p>
-          <p class="brand-sub" id="candidateSub">Loading candidate…</p>
+  <!-- ==================== Header ==================== -->
+  <header class="relative sticky top-0 z-10 border-b border-slate-800 bg-slate-900/80 backdrop-blur-md">
+    <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-500 via-emerald-400 to-indigo-500"></div>
+    <div class="max-w-4xl mx-auto px-5 py-4 flex items-center justify-between gap-4 flex-wrap">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="relative flex-none w-10 h-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 flex items-center justify-center">
+          <span id="recDot" class="w-2 h-2 rounded-full bg-slate-600 transition-all duration-300"></span>
+        </div>
+        <div class="min-w-0">
+          <h1 class="font-display font-bold text-lg tracking-tight text-white whitespace-nowrap leading-tight">AI Interview Agent</h1>
+          <p class="text-[11px] font-mono text-slate-500 leading-tight">v1.0 &bull; Powered by Llama 3.3 &amp; SQLite</p>
+          <p id="candidateSub" class="text-xs text-slate-400 mt-0.5 truncate">Loading candidate&hellip;</p>
         </div>
       </div>
-      <div class="header-meta">
-        <span class="chip" id="turnChip">turn 0</span>
-        <span class="chip status-live" id="statusChip">connecting…</span>
+      <div class="flex items-center gap-2 flex-wrap">
+        <span id="turnChip"
+              class="inline-flex items-center font-mono text-[11px] text-slate-400 bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-full whitespace-nowrap">turn 0</span>
+        <span id="statusChip"
+              class="inline-flex items-center gap-1.5 font-mono text-[11px] tracking-wide px-2.5 py-1 rounded-full border whitespace-nowrap transition-colors border-indigo-500/40 bg-indigo-500/10 text-indigo-300">connecting&hellip;</span>
       </div>
     </div>
   </header>
 
-  <main class="chat-wrap" id="chatWrap">
-    <div class="chat-inner" id="chatInner"></div>
+  <!-- ==================== Chat area ==================== -->
+  <main id="chatWrap" class="chat-scroll flex-1 overflow-y-auto scroll-smooth">
+    <div id="chatInner" class="max-w-4xl mx-auto px-5 pt-7 pb-5 flex flex-col gap-4 min-h-full"></div>
   </main>
 
-  <footer class="composer" id="composer">
-    <div class="composer-inner">
-      <div class="composer-field">
+  <!-- Typing indicator: hidden by default, moved into #chatInner and unhidden by JS -->
+  <div id="typingIndicator" class="hidden msg-row flex gap-2.5 justify-start">
+    <div class="flex-none w-7 h-7 mt-0.5 rounded-lg flex items-center justify-center font-mono text-[11px] font-medium bg-slate-800 border border-indigo-500/30 text-indigo-400">AI</div>
+    <div class="max-w-[68%] px-3.5 py-2.5 rounded-2xl rounded-tl-sm bg-slate-800 border border-slate-700 flex items-center gap-2.5">
+      <span class="inline-flex items-center gap-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-slate-400 bounce-dot"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-slate-400 bounce-dot" style="animation-delay:0.15s"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-slate-400 bounce-dot" style="animation-delay:0.3s"></span>
+      </span>
+      <span class="text-xs text-slate-400 font-mono">AI Interviewer is analyzing&hellip;</span>
+    </div>
+  </div>
+
+  <!-- ==================== Composer ==================== -->
+  <footer id="composer" class="border-t border-slate-800 bg-slate-900/80 backdrop-blur-md px-5 py-4 transition-opacity duration-200">
+    <div class="max-w-4xl mx-auto flex items-end gap-2.5">
+      <div class="flex-1 flex items-center bg-slate-800 border border-slate-700 rounded-xl pl-4 pr-1 py-1 transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/30">
         <input
           type="text"
           id="messageInput"
-          placeholder="Type your answer…"
+          placeholder="Type your answer&hellip;"
           autocomplete="off"
           disabled
+          class="flex-1 bg-transparent border-none outline-none text-slate-100 placeholder-slate-500 text-[14.5px] py-2.5 disabled:text-slate-600"
         />
       </div>
-      <button class="send-btn" id="sendBtn" disabled aria-label="Send message">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button id="sendBtn" disabled aria-label="Send message"
+              class="flex-none w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center transition-all duration-150 hover:bg-indigo-500 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:translate-y-0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-[17px] h-[17px]">
           <line x1="22" y1="2" x2="11" y2="13"></line>
           <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
         </svg>
       </button>
     </div>
-    <p class="composer-hint" id="composerHint">Press Enter to send</p>
+    <p id="composerHint" class="max-w-4xl mx-auto mt-2 text-center font-mono text-[11px] text-slate-600">Press Enter to send</p>
   </footer>
 
 <script>
@@ -553,23 +169,35 @@
   // -----------------------------------------------------------------------
   // DOM refs
   // -----------------------------------------------------------------------
-  const chatInner   = document.getElementById("chatInner");
-  const chatWrap     = document.getElementById("chatWrap");
-  const input        = document.getElementById("messageInput");
-  const sendBtn      = document.getElementById("sendBtn");
-  const recDot       = document.getElementById("recDot");
-  const statusChip   = document.getElementById("statusChip");
-  const turnChip     = document.getElementById("turnChip");
-  const candidateSub = document.getElementById("candidateSub");
-  const composer     = document.getElementById("composer");
-  const composerHint = document.getElementById("composerHint");
+  const chatInner       = document.getElementById("chatInner");
+  const chatWrap         = document.getElementById("chatWrap");
+  const input             = document.getElementById("messageInput");
+  const sendBtn           = document.getElementById("sendBtn");
+  const recDot            = document.getElementById("recDot");
+  const statusChip        = document.getElementById("statusChip");
+  const turnChip          = document.getElementById("turnChip");
+  const candidateSub      = document.getElementById("candidateSub");
+  const composer          = document.getElementById("composer");
+  const composerHint      = document.getElementById("composerHint");
+  const typingIndicator   = document.getElementById("typingIndicator");
 
   let turnCount = 0;
   let interviewDone = false;
-  let typingRow = null;
 
   candidateSub.textContent =
     `${CANDIDATE.member.name} · ${CANDIDATE.member.jobRole} · ${CANDIDATE.member.yearsExperience}y exp`;
+
+  // -----------------------------------------------------------------------
+  // Style constants
+  // -----------------------------------------------------------------------
+  const CHIP_BASE = "inline-flex items-center gap-1.5 font-mono text-[11px] tracking-wide px-2.5 py-1 rounded-full border whitespace-nowrap transition-colors";
+  const DOT_BASE  = "w-2 h-2 rounded-full transition-all duration-300";
+
+  const AVATAR_USER = "flex-none w-7 h-7 mt-0.5 rounded-lg flex items-center justify-center font-mono text-[11px] font-medium bg-slate-800 border border-slate-700 text-slate-400";
+  const AVATAR_AI   = "flex-none w-7 h-7 mt-0.5 rounded-lg flex items-center justify-center font-mono text-[11px] font-medium bg-slate-800 border border-indigo-500/30 text-indigo-400";
+
+  const BUBBLE_USER = "max-w-[68%] px-3.5 py-2.5 rounded-2xl rounded-tr-sm text-[14.5px] leading-relaxed whitespace-pre-wrap break-words bg-indigo-600 border border-indigo-500 text-white transition-colors duration-150 hover:bg-indigo-500";
+  const BUBBLE_AI   = "max-w-[68%] px-3.5 py-2.5 rounded-2xl rounded-tl-sm text-[14.5px] leading-relaxed whitespace-pre-wrap break-words bg-slate-800 border border-slate-700 text-slate-200 transition-colors duration-150 hover:border-slate-600";
 
   // -----------------------------------------------------------------------
   // Rendering helpers
@@ -579,10 +207,16 @@
     requestAnimationFrame(() => { chatWrap.scrollTop = chatWrap.scrollHeight; });
   }
 
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
   function addSystemNote(text) {
     const row = document.createElement("div");
-    row.className = "msg-row system";
-    row.innerHTML = `<div class="bubble">${escapeHtml(text)}</div>`;
+    row.className = "msg-row flex justify-center";
+    row.innerHTML = `<div class="border border-dashed border-slate-700 text-slate-500 text-xs font-mono rounded-full px-3.5 py-1.5">${escapeHtml(text)}</div>`;
     chatInner.appendChild(row);
     scrollToBottom();
     return row;
@@ -590,14 +224,14 @@
 
   function addMessage(role, text) {
     const row = document.createElement("div");
-    row.className = `msg-row ${role}`;
+    row.className = `msg-row flex gap-2.5 max-w-full ${role === "user" ? "justify-end" : "justify-start"}`;
 
     const avatar = document.createElement("div");
-    avatar.className = "avatar";
+    avatar.className = role === "user" ? AVATAR_USER : AVATAR_AI;
     avatar.textContent = role === "user" ? "YOU" : "AI";
 
     const bubble = document.createElement("div");
-    bubble.className = "bubble";
+    bubble.className = role === "user" ? BUBBLE_USER : BUBBLE_AI;
     bubble.textContent = text;
 
     if (role === "user") {
@@ -614,51 +248,52 @@
   }
 
   function showTyping() {
-    typingRow = document.createElement("div");
-    typingRow.className = "msg-row assistant";
-    typingRow.innerHTML = `
-      <div class="avatar">AI</div>
-      <div class="bubble">
-        <span class="typing-dots"><span></span><span></span><span></span></span>
-      </div>`;
-    chatInner.appendChild(typingRow);
+    typingIndicator.classList.remove("hidden");
+    chatInner.appendChild(typingIndicator); // pin to bottom of the transcript
     scrollToBottom();
   }
 
   function hideTyping() {
-    if (typingRow) {
-      typingRow.remove();
-      typingRow = null;
-    }
+    typingIndicator.classList.add("hidden");
+    if (typingIndicator.parentNode) typingIndicator.remove();
   }
 
   function renderFeedbackReport(feedback) {
     const row = document.createElement("div");
-    row.className = "msg-row assistant";
-    row.style.maxWidth = "100%";
+    row.className = "msg-row flex justify-start w-full";
 
     const card = document.createElement("div");
-    card.className = "report-card";
-    card.style.flex = "1";
+    card.className = "relative w-full overflow-hidden rounded-2xl border border-slate-700 bg-slate-900/90 backdrop-blur-md shadow-2xl p-5 sm:p-6";
 
-    const list = (items) =>
-      (items || []).map(i => `<li>${escapeHtml(i)}</li>`).join("");
+    const list = (items, itemClass) =>
+      (items || []).map(i => `<li class="${itemClass}">${escapeHtml(i)}</li>`).join("");
+
+    const strengthItem = "text-[13.5px] leading-snug text-emerald-100/90 bg-emerald-950/40 border border-emerald-900/30 rounded-lg px-2.5 py-2";
+    const gapItem       = "text-[13.5px] leading-snug text-amber-100/90 bg-amber-950/40 border border-amber-900/30 rounded-lg px-2.5 py-2";
+    const nextItem       = "text-[13.5px] leading-snug text-indigo-100/90 bg-indigo-950/40 border border-indigo-900/30 rounded-lg px-2.5 py-2";
 
     card.innerHTML = `
-      <p class="report-eyebrow">Interview complete · Feedback report</p>
-      <p class="report-summary">${escapeHtml(feedback.summary || "")}</p>
-      <div class="report-grid">
-        <div class="report-section">
-          <h4><span class="dot-marker dot-strength"></span>Strengths</h4>
-          <ul>${list(feedback.strengths)}</ul>
+      <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-500 via-emerald-400 to-indigo-500"></div>
+      <p class="font-mono text-[11px] uppercase tracking-wider text-indigo-400 mb-2">Interview complete &middot; Feedback report</p>
+      <p class="text-[15px] leading-relaxed text-slate-100 mb-5">${escapeHtml(feedback.summary || "")}</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div class="rounded-xl border border-emerald-900/40 bg-emerald-950/30 p-3.5">
+          <h4 class="flex items-center gap-1.5 font-display text-xs uppercase tracking-wide text-emerald-400 mb-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Strengths
+          </h4>
+          <ul class="flex flex-col gap-1.5">${list(feedback.strengths, strengthItem)}</ul>
         </div>
-        <div class="report-section">
-          <h4><span class="dot-marker dot-gap"></span>Gaps</h4>
-          <ul>${list(feedback.gaps)}</ul>
+        <div class="rounded-xl border border-amber-900/40 bg-amber-950/30 p-3.5">
+          <h4 class="flex items-center gap-1.5 font-display text-xs uppercase tracking-wide text-amber-400 mb-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>Gaps
+          </h4>
+          <ul class="flex flex-col gap-1.5">${list(feedback.gaps, gapItem)}</ul>
         </div>
-        <div class="report-section next">
-          <h4><span class="dot-marker dot-next"></span>Next steps</h4>
-          <ul>${list(feedback.next)}</ul>
+        <div class="sm:col-span-2 rounded-xl border border-indigo-900/40 bg-indigo-950/30 p-3.5">
+          <h4 class="flex items-center gap-1.5 font-display text-xs uppercase tracking-wide text-indigo-300 mb-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>Next steps
+          </h4>
+          <ul class="flex flex-col gap-1.5">${list(feedback.next, nextItem)}</ul>
         </div>
       </div>
     `;
@@ -668,30 +303,23 @@
     scrollToBottom();
   }
 
-  function escapeHtml(str) {
-    const div = document.createElement("div");
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
   function setStatus(state) {
     if (state === "connecting") {
       statusChip.textContent = "connecting…";
-      statusChip.className = "chip status-live";
-      recDot.className = "rec-dot";
+      statusChip.className = `${CHIP_BASE} border-indigo-500/40 bg-indigo-500/10 text-indigo-300`;
+      recDot.className = `${DOT_BASE} bg-slate-600`;
     } else if (state === "live") {
       statusChip.textContent = "in progress";
-      statusChip.className = "chip status-live";
-      recDot.className = "rec-dot live";
+      statusChip.className = `${CHIP_BASE} border-indigo-500/40 bg-indigo-500/10 text-indigo-300`;
+      recDot.className = `${DOT_BASE} bg-indigo-400 rec-live shadow-[0_0_8px_rgba(129,140,248,0.6)]`;
     } else if (state === "done") {
       statusChip.textContent = "complete";
-      statusChip.className = "chip status-done";
-      recDot.className = "rec-dot done";
+      statusChip.className = `${CHIP_BASE} border-emerald-500/40 bg-emerald-500/10 text-emerald-300`;
+      recDot.className = `${DOT_BASE} bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]`;
     } else if (state === "error") {
       statusChip.textContent = "connection error";
-      statusChip.className = "chip";
-      statusChip.style.color = "var(--danger)";
-      recDot.className = "rec-dot";
+      statusChip.className = `${CHIP_BASE} border-red-500/40 bg-red-500/10 text-red-300`;
+      recDot.className = `${DOT_BASE} bg-slate-600`;
     }
   }
 
